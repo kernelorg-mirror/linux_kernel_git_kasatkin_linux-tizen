@@ -168,7 +168,7 @@ static int ima_calc_field_array_hash_tfm(struct ima_field_data *field_data,
 		return rc;
 
 	for (i = 0; i < num_fields; i++) {
-		if (strcmp(td->name, IMA_TEMPLATE_IMA_NAME) != 0) {
+		if (td && strcmp(td->name, IMA_TEMPLATE_IMA_NAME) != 0) {
 			rc = crypto_shash_update(&desc.shash,
 						(const u8 *) &field_data[i].len,
 						sizeof(field_data[i].len));
@@ -204,6 +204,13 @@ int ima_calc_field_array_hash(struct ima_field_data *field_data,
 	ima_free_tfm(tfm);
 
 	return rc;
+}
+
+int ima_calc_buffer_hash(const void *buf, int len, struct ima_digest_data *hash)
+{
+	struct ima_field_data fd = { .data = (u8 *)buf, .len = len };
+
+	return ima_calc_field_array_hash(&fd, NULL, 1, hash);
 }
 
 static void __init ima_pcrread(int idx, u8 *pcr)
