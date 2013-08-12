@@ -173,11 +173,11 @@ int ima_read_xattr(struct dentry *dentry,
  * Return 0 on success, error code otherwise
  */
 int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
-			     struct file *file, const unsigned char *filename,
+			     struct dentry *dentry,
+			     const unsigned char *filename,
 			     struct evm_ima_xattr_data *xattr_value,
 			     int xattr_len)
 {
-	struct dentry *dentry = file->f_dentry;
 	struct inode *inode = dentry->d_inode;
 	enum integrity_status status = INTEGRITY_UNKNOWN;
 	const char *op = "appraise_data";
