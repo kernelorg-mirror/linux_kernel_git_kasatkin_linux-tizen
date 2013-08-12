@@ -850,6 +850,9 @@ follow_link(struct path *link, struct nameidata *nd, void **p)
 	error = 0;
 	s = nd_get_link(nd);
 	if (s) {
+		error = ima_link_check(dentry, s);
+		if (unlikely(error))
+			goto out_put_nd_path;
 		error = __vfs_follow_link(nd, s);
 		if (unlikely(error))
 			put_link(nd, link, *p);
@@ -1958,7 +1961,7 @@ static int path_lookupat(int dfd, const char *name,
 	 * following mounts are sufficiently divergent that functions are
 	 * duplicated. Typically there is a function foo(), and its RCU
 	 * analogue, foo_rcu().
-	 *
+ 	 *
 	 * -ECHILD is the error number of choice (just to avoid clashes) that
 	 * is returned if some aspect of an rcu-walk fails. Such an error must
 	 * be handled by restarting a traditional ref-walk (which will always
@@ -4001,7 +4004,9 @@ int generic_readlink(struct dentry *dentry, char __user *buffer, int buflen)
 	if (IS_ERR(cookie))
 		return PTR_ERR(cookie);
 
-	res = vfs_readlink(dentry, buffer, buflen, nd_get_link(&nd));
+	res = ima_link_check(dentry, nd_get_link(&nd));
+	if (!res)
+		res = vfs_readlink(dentry, buffer, buflen, nd_get_link(&nd));
 	if (dentry->d_inode->i_op->put_link)
 		dentry->d_inode->i_op->put_link(dentry, &nd, cookie);
 	return res;
