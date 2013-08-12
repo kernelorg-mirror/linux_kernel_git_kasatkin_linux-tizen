@@ -48,6 +48,7 @@ extern int ima_initialized;
 extern int ima_used_chip;
 extern int ima_hash_algo;
 extern int ima_appraise;
+extern struct crypto_shash *ima_shash_tfm;
 
 /* IMA template field data definition */
 struct ima_field_data {

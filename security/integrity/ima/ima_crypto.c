@@ -23,7 +23,7 @@
 #include <crypto/hash_info.h>
 #include "ima.h"
 
-static struct crypto_shash *ima_shash_tfm;
+struct crypto_shash *ima_shash_tfm;
 
 int ima_init_crypto(void)
 {
