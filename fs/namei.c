@@ -2778,7 +2778,7 @@ retry_lookup:
 	mutex_lock(&dir->d_inode->i_mutex);
 	error = lookup_open(nd, path, file, op, got_write, opened);
 	if (error >= 0 && (*opened & FILE_CREATED))
-		ima_dir_update(&nd->path, NULL);
+		ima_dir_update(&nd->path, NULL, NULL);
 	mutex_unlock(&dir->d_inode->i_mutex);
 
 	if (error <= 0) {
@@ -3212,7 +3212,7 @@ retry:
 			break;
 	}
 	if (!error)
-		ima_dir_update(&path, dentry);
+		ima_dir_update(&path, dentry, NULL);
 out:
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
@@ -3270,7 +3270,7 @@ retry:
 	if (!error)
 		error = vfs_mkdir(path.dentry->d_inode, dentry, mode);
 	if (!error)
-		ima_dir_update(&path, dentry);
+		ima_dir_update(&path, dentry, NULL);
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
@@ -3388,7 +3388,7 @@ retry:
 		goto exit3;
 	error = vfs_rmdir(nd.path.dentry->d_inode, dentry);
 	if (!error)
-		ima_dir_update(&nd.path, NULL);
+		ima_dir_update(&nd.path, NULL, NULL);
 exit3:
 	dput(dentry);
 exit2:
@@ -3485,7 +3485,7 @@ retry:
 			goto exit2;
 		error = vfs_unlink(nd.path.dentry->d_inode, dentry);
 		if (!error)
-			ima_dir_update(&nd.path, NULL);
+			ima_dir_update(&nd.path, NULL, NULL);
 exit2:
 		dput(dentry);
 	}
@@ -3567,7 +3567,7 @@ retry:
 	if (!error)
 		error = vfs_symlink(path.dentry->d_inode, dentry, from->name);
 	if (!error)
-		ima_dir_update(&path, dentry);
+		ima_dir_update(&path, dentry, from->name);
 	done_path_create(&path, dentry);
 	if (retry_estale(error, lookup_flags)) {
 		lookup_flags |= LOOKUP_REVAL;
@@ -3681,7 +3681,7 @@ retry:
 		goto out_dput;
 	error = vfs_link(old_path.dentry, new_path.dentry->d_inode, new_dentry);
 	if (!error)
-		ima_dir_update(&new_path, NULL);
+		ima_dir_update(&new_path, NULL, NULL);
 out_dput:
 	done_path_create(&new_path, new_dentry);
 	if (retry_estale(error, how)) {
@@ -3935,9 +3935,9 @@ retry:
 	error = vfs_rename(old_dir->d_inode, old_dentry,
 				   new_dir->d_inode, new_dentry);
 	if (!error) {
-		ima_dir_update(&oldnd.path, NULL);
+		ima_dir_update(&oldnd.path, NULL, NULL);
 		if (!path_equal(&oldnd.path, &newnd.path))
-			ima_dir_update(&newnd.path, NULL);
+			ima_dir_update(&newnd.path, NULL, NULL);
 	}
 exit5:
 	dput(new_dentry);
