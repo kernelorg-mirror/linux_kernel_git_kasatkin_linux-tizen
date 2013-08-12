@@ -286,7 +286,8 @@ int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
 		if (!actmask)
 			break;
 	}
-
+	if (!(action & IMA_DO_MASK))
+		action = 0;
 	return action;
 }
 
