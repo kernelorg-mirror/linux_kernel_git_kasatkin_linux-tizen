@@ -71,6 +71,7 @@ static int ima_calc_file_hash_tfm(struct file *file,
 	loff_t i_size, offset = 0;
 	char *rbuf;
 	int rc, read = 0;
+	unsigned int unset_flags = file->f_flags & O_DIRECT;
 	struct {
 		struct shash_desc shash;
 		char ctx[crypto_shash_descsize(tfm)];
@@ -90,6 +91,10 @@ static int ima_calc_file_hash_tfm(struct file *file,
 		rc = -ENOMEM;
 		goto out;
 	}
+
+	if (unset_flags)
+		file->f_flags &= ~unset_flags;
+
 	if (!(file->f_mode & FMODE_READ)) {
 		file->f_mode |= FMODE_READ;
 		read = 1;
@@ -116,6 +121,8 @@ static int ima_calc_file_hash_tfm(struct file *file,
 		rc = crypto_shash_final(&desc.shash, hash->digest);
 	if (read)
 		file->f_mode &= ~FMODE_READ;
+	if (unset_flags)
+		file->f_flags |= unset_flags;
 out:
 	return rc;
 }
