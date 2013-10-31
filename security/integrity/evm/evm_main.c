@@ -432,7 +432,7 @@ static int __init init_evm(void)
 
 	error = evm_init_secfs();
 	if (error < 0) {
-		printk(KERN_INFO "EVM: Error registering secfs\n");
+		pr_info("EVM: Error registering secfs\n");
 		goto err;
 	}
 
@@ -449,7 +449,7 @@ static int __init evm_display_config(void)
 	char **xattrname;
 
 	for (xattrname = evm_config_xattrnames; *xattrname != NULL; xattrname++)
-		printk(KERN_INFO "EVM: %s\n", *xattrname);
+		pr_info("EVM: %s\n", *xattrname);
 	return 0;
 }
 
