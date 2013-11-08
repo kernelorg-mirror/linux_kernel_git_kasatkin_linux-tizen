@@ -39,7 +39,7 @@ int ima_init_crypto(void)
 	return 0;
 }
 
-static struct crypto_shash *ima_alloc_tfm(enum hash_algo algo)
+struct crypto_shash *ima_alloc_tfm(enum hash_algo algo)
 {
 	struct crypto_shash *tfm = ima_shash_tfm;
 	int rc;
@@ -55,7 +55,7 @@ static struct crypto_shash *ima_alloc_tfm(enum hash_algo algo)
 	return tfm;
 }
 
-static void ima_free_tfm(struct crypto_shash *tfm)
+void ima_free_tfm(struct crypto_shash *tfm)
 {
 	if (tfm != ima_shash_tfm)
 		crypto_free_shash(tfm);
