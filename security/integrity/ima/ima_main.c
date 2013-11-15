@@ -98,7 +98,7 @@ static void ima_rdwr_violation_check(struct file *file)
 	}
 
 	must_measure = ima_must_measure(file->f_dentry, MAY_READ, FILE_CHECK);
-	if (!must_measure)
+	if (must_measure <= 0)
 		goto out;
 
 	if (atomic_read(&inode->i_writecount) > 0)
@@ -178,8 +178,8 @@ static int process_measurement(struct file *file, const char *filename,
 	 * Included is the appraise submask.
 	 */
 	action = ima_get_action(file->f_dentry, mask, function);
-	if (!action)
-		return 0;
+	if (action <= 0)
+		return action;
 
 	must_appraise = action & IMA_APPRAISE;
 
