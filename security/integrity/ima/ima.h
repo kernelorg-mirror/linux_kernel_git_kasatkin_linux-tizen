@@ -130,8 +130,8 @@ static inline unsigned long ima_hash_key(u8 *digest)
 }
 
 /* LIM API function definitions */
-int ima_get_action(struct inode *inode, int mask, int function);
-int ima_must_measure(struct inode *inode, int mask, int function);
+int ima_get_action(struct dentry *dentry, int mask, int function);
+int ima_must_measure(struct dentry *dentry, int mask, int function);
 int ima_collect_measurement(struct integrity_iint_cache *iint,
 			    struct file *file,
 			    struct evm_ima_xattr_data **xattr_value,
@@ -160,7 +160,7 @@ struct integrity_iint_cache *integrity_iint_find(struct inode *inode);
 /* IMA policy related functions */
 enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK, POST_SETATTR };
 
-int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
+int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
 		     int flags);
 void ima_init_policy(void);
 void ima_update_policy(void);
@@ -177,7 +177,7 @@ int ima_appraise_measurement(int func, struct integrity_iint_cache *iint,
 			     struct file *file, const unsigned char *filename,
 			     struct evm_ima_xattr_data *xattr_value,
 			     int xattr_len);
-int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func);
+int ima_must_appraise(struct dentry *dentry, int mask, enum ima_hooks func);
 void ima_update_xattr(struct integrity_iint_cache *iint, struct file *file);
 enum integrity_status ima_get_cache_status(struct integrity_iint_cache *iint,
 					   int func);
@@ -197,7 +197,7 @@ static inline int ima_appraise_measurement(int func,
 	return INTEGRITY_UNKNOWN;
 }
 
-static inline int ima_must_appraise(struct inode *inode, int mask,
+static inline int ima_must_appraise(struct dentry *dentry, int mask,
 				    enum ima_hooks func)
 {
 	return 0;

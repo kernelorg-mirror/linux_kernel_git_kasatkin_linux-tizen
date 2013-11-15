@@ -97,7 +97,7 @@ static void ima_rdwr_violation_check(struct file *file)
 		goto out;
 	}
 
-	must_measure = ima_must_measure(inode, MAY_READ, FILE_CHECK);
+	must_measure = ima_must_measure(file->f_dentry, MAY_READ, FILE_CHECK);
 	if (!must_measure)
 		goto out;
 
@@ -177,7 +177,7 @@ static int process_measurement(struct file *file, const char *filename,
 	 * bitmask based on the appraise/audit/measurement policy.
 	 * Included is the appraise submask.
 	 */
-	action = ima_get_action(inode, mask, function);
+	action = ima_get_action(file->f_dentry, mask, function);
 	if (!action)
 		return 0;
 
