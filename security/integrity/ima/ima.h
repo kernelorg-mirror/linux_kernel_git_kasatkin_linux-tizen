@@ -163,7 +163,8 @@ struct integrity_iint_cache *integrity_iint_insert(struct inode *inode);
 struct integrity_iint_cache *integrity_iint_find(struct inode *inode);
 
 /* IMA policy related functions */
-enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK, POST_SETATTR };
+enum ima_hooks { FILE_CHECK = 1, MMAP_CHECK, BPRM_CHECK, MODULE_CHECK,
+		 POST_SETATTR, DIR_CHECK };
 
 int ima_match_policy(struct dentry *dentry, enum ima_hooks func, int mask,
 		     int flags);

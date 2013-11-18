@@ -123,3 +123,13 @@ config IMA_APPRAISE
 	  For more information on integrity appraisal refer to:
 	  <http://linux-ima.sourceforge.net>
 	  If unsure, say N.
+
+config IMA_APPRAISE_DIRECTORIES
+	bool "Performs directory integrity appraisal"
+	depends on IMA_APPRAISE
+	default n
+	help
+	  This option enables directory integrity appraisal.
+
+	  If unsure, say N.
+
