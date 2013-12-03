@@ -37,16 +37,10 @@ static int __init ima_dir_setup(char *str)
 
 __setup("ima_dir=", ima_dir_setup);
 
-struct readdir_callback {
-	struct dir_context ctx;
-	struct shash_desc *shash;
-};
-
 static int ima_filldir(void *__buf, const char *name, int namelen,
 		       loff_t offset, u64 ino, unsigned int d_type)
 {
-	struct readdir_callback *ctx = __buf;
-	struct shash_desc *shash = ctx->shash;
+	struct shash_desc *shash = __buf;
 	int rc;
 
 	rc = crypto_shash_update(shash, name, namelen);
@@ -62,14 +56,11 @@ static int ima_calc_dir_hash_tfm(struct path *path, struct file *file,
 {
 	struct inode *inode = path->dentry->d_inode;
 	int rc = -ENOTDIR, opened = 0;
+	loff_t pos = 0;
 	struct {
 		struct shash_desc shash;
 		char ctx[crypto_shash_descsize(tfm)];
 	} desc;
-	struct readdir_callback buf = {
-		.ctx.actor = ima_filldir,
-		.shash = &desc.shash
-	};
 
 	if (IS_DEADDIR(inode))
 		return -ENOENT;
@@ -79,9 +70,13 @@ static int ima_calc_dir_hash_tfm(struct path *path, struct file *file,
 		if (IS_ERR(file))
 			return PTR_ERR(file);
 		opened = 1;
+	} else {
+		/* f_op->readdir alters f_pos, unlike vfs_read */
+		pos = file->f_pos;
+		file->f_pos = 0;
 	}
 
-	if (!file->f_op || !file->f_op->iterate)
+	if (!file->f_op || !file->f_op->readdir)
 		goto out;
 
 	/* Directory can only be opened for reading? */
@@ -94,10 +89,9 @@ static int ima_calc_dir_hash_tfm(struct path *path, struct file *file,
 	if (rc != 0)
 		goto out;
 
-	/* we do not use iterate_dir() because it locks dir i_mutex,
-	   which is already locked by our call path */
-	WARN(buf.ctx.pos, "ctx.pos is not NULL");
-	rc = file->f_op->iterate(file, &buf.ctx);
+	/* we do not use vfs_readdir() because it locks dir i_mutex,
+	which is already locked by our call path */
+	rc = file->f_op->readdir(file, &desc.shash, ima_filldir);
 	if (rc)
 		goto out;
 
@@ -107,6 +101,8 @@ static int ima_calc_dir_hash_tfm(struct path *path, struct file *file,
 out:
 	if (opened)
 		fput(file);
+	else
+		file->f_pos = pos;
 	return rc;
 }
 
