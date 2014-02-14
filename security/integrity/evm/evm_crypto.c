@@ -239,6 +239,15 @@ int evm_init_key(void)
 	struct key *evm_key;
 	struct encrypted_key_payload *ekp;
 	int rc = 0;
+	struct shash_desc *desc;
+
+	/* this is a hack to check if hmac(sha1) is a problem */
+	desc = init_desc(EVM_XATTR_HMAC);
+	if (IS_ERR(desc)) {
+		pr_info("EVM: init_desc failed\n");
+		return PTR_ERR(desc);
+	}
+	kfree(desc);
 
 	evm_key = request_key(&key_type_encrypted, EVMKEY, NULL);
 	if (IS_ERR(evm_key))
